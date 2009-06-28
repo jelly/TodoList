@@ -11,8 +11,9 @@ import System.Directory
 import System.IO
 import Data.List
 
+fileName="/home/jelle/Projects/TodoList/test"
 
-dispatch :: [(String, [String] -> IO ())]
+dispatch :: [(String, String -> IO ())]
 dispatch = [ ("add", add)
 	   , ("view", view)
 	   , ("remove", remove)
@@ -23,18 +24,18 @@ main = do
     let (Just action) = lookup command dispatch  
     action args
 
-add :: [String] -> IO()
-add [fileName,todoItem,priority] = appendFile fileName (todoItem ++ " (" ++ priority ++ ")" ++ "\n")
+add :: String -> IO()
+add todoItem = appendFile fileName (todoItem ++  "\n")
 
-view :: [String] ->  IO()  
-view [fileName] = do  
+view :: String ->  IO()  
+view str = do  
      contents <- readFile fileName
      let todoTasks = lines contents  
          numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks  
      putStr $ unlines numberedTasks  
 
-remove :: [String] -> IO()  
-remove [fileName, numberString] = do  
+remove :: String -> IO()  
+remove numberString = do  
      handle <- openFile fileName ReadMode  
      (tempName, tempHandle) <- openTempFile "." "temp"  
      contents <- hGetContents handle  
@@ -46,3 +47,8 @@ remove [fileName, numberString] = do
      hClose tempHandle  
      removeFile fileName  
      renameFile tempName fileName  
+
+{--
+search :: [String] -> IO()
+search 
+--}
