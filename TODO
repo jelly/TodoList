@@ -1,3 +1,5 @@
+-rewrite todo.hs to getOpt, wich is nicer, more error handling.
+-implement display version
 -Make a var for the file
 -implement search    ./todo search keyword
 -implement priorities
