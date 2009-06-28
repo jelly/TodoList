@@ -1,0 +1,5 @@
+TodoList an todolist editor written in haskell
+Usage:
+	./todo view fileName
+	./todo add fileName "my todo thing"
+	./todo remove todo.txt number
