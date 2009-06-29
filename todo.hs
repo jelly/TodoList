@@ -54,6 +54,7 @@ search [fileName,keyword] = do
 	let todoTasks = filter (keyword `isInfixOf`) (lines contents)
 	putStr $ unlines todoTasks 
 
+--not working yet
 replace :: [String] -> IO ()
 replace [fileName,numberString,newLine] = do
 	remove [fileName,numberString]
