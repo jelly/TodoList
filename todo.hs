@@ -53,3 +53,8 @@ search [fileName,keyword] = do
 	contents <- readFile fileName
 	let todoTasks = filter (keyword `isInfixOf`) (lines contents)
 	putStr $ unlines todoTasks 
+
+replace :: [String] -> IO ()
+replace [fileName,numberString,newLine] = do
+	remove [fileName,numberString]
+	add [fileName,newLine]
