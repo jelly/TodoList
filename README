@@ -3,3 +3,4 @@ Usage:
 	./todo view fileName
 	./todo add fileName "my todo thing"
 	./todo remove todo.txt number
+	./todo search todo.txt "keyword"
