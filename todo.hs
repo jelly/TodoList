@@ -12,7 +12,7 @@ import Data.Maybe( fromMaybe )
 import Data.List
 import System.Exit
 
-fileName="/home/jelle/todo"
+fileName=""
 
 main = do
   args <- getArgs
@@ -41,17 +41,18 @@ options = [
     Option ['a'] ["add"]     (ReqArg add "todo" ) "add item to todolist",
     Option ['r'] ["remove"]  (ReqArg remove "lineNumber" ) "remove item from list",
     Option ['s'] ["search"]  (ReqArg search "keyword") "search you todo items",
+    Option ['p'] ["setPath"] (ReqArg path "path") "set the path for todofile",
     Option ['V'] ["version"] (NoArg showVersion)         "show version number"
   	  ]
 
 --show the version of the porgram
 showVersion _ = do
-  putStrLn "TodoListEditor version 0.1"
+  putStrLn "TodoListEditor version 0.2"
   exitWith ExitSuccess
 
 --show usage
 showHelp _ = do
-  putStrLn "Usage: [-vio] Args"
+  putStrLn "Usage: todo [OPTIONS]  \n\tOPTIONS: \n\t\t-a [--add]:\tadd an todolist item\n\t\t-h [--help]\tshow help\n\t\t-p [--setPath]\tset the todolist file path\n\t\t-r [--remove]\tremove an line, give lineNumber as argument\n\t\t-s [--search]\tsearch the todolist with an keyword\n\t\t-v [--view]\tview the todolist\n\t\t-V [--version]\tshow the version\n"
   exitWith ExitSuccess
 
 --View the todo list
@@ -61,6 +62,11 @@ view _ =  do
         numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks
     putStr $ unlines numberedTasks 
     exitWith ExitSuccess
+
+--Set path for todolist File
+path args opt = do
+	let fileName = args
+	exitWith ExitSuccess	
 
 --Add an todo item
 add args opt = do 
