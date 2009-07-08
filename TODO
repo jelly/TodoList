@@ -1,6 +1,4 @@
--rewrite code to better passing of arguments
--help function
--change arguments passing
 -add rewrite / replace ./todo test replace 5 "make me some coffeee"
 -add date
 -add priority
+-set todo file
