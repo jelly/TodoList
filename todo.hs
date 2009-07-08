@@ -1,61 +1,90 @@
-{-- TodoList is a simple todolist editor cli app 
- - first compile the code :  ghc --make todo.hs
- - usage:
- - ./todo view todo.txt  ( shows the todo.txt)
- - ./todo add todo.txt "Programmer some haskell"  (adds an todo item)
- - ./todo remove todo.txt 2 			  ( removes line 2 of todo.txt)
---}
+{-- An simple todolist manager: 
+ - Planned features : replace , prioritise
+ --}
+
+module Main( main ) where
 
 import System.Environment
 import System.Directory
+import System.Console.GetOpt
 import System.IO
+import Data.Maybe( fromMaybe )
 import Data.List
+import System.Exit
 
-dispatch :: [(String, [String] -> IO ())]
-dispatch =  [ ("add", add)
-            , ("view", view)
-            , ("remove", remove)
-	    , ("search",search)
-            ]
- 
+fileName="/home/jelle/todo"
+
 main = do
-    (command:args) <- getArgs
-    let (Just action) = lookup command dispatch
-    action args
+  args <- getArgs
+  let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
+  opts <- foldl (>>=) (return defaultOptions) actions
+  let Options { optInput = input,
+                optOutput = output } = opts
+  input >>= output
 
-add :: [String] -> IO ()
-add [fileName, todoItem] = appendFile fileName (todoItem ++ "\n")
+data Options = Options  {
+    optInput  :: IO String,
+    optOutput :: String -> IO ()
+  }
 
-view :: [String] -> IO ()
-view [fileName] = do
+defaultOptions :: Options
+defaultOptions = Options {
+    optInput  = getContents,
+    optOutput = putStr
+  }
+
+--cli options 
+options :: [OptDescr (Options -> IO Options)]
+options = [
+    Option ['h'] ["help"]    (NoArg showHelp) "show help",
+    Option ['v'] ["view"]     (NoArg view ) "view todoList",
+    Option ['a'] ["add"]     (ReqArg add "todo" ) "add item to todolist",
+    Option ['r'] ["remove"]  (ReqArg remove "lineNumber" ) "remove item from list",
+    Option ['s'] ["search"]  (ReqArg search "keyword") "search you todo items",
+    Option ['V'] ["version"] (NoArg showVersion)         "show version number"
+  	  ]
+
+--show the version of the porgram
+showVersion _ = do
+  putStrLn "TodoListEditor version 0.1"
+  exitWith ExitSuccess
+
+--show usage
+showHelp _ = do
+  putStrLn "Usage: [-vio] Args"
+  exitWith ExitSuccess
+
+--View the todo list
+view _ =  do
     contents <- readFile fileName
     let todoTasks = lines contents
         numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks
-    putStr $ unlines numberedTasks
+    putStr $ unlines numberedTasks 
+    exitWith ExitSuccess
 
+--Add an todo item
+add args opt = do 
+	appendFile fileName (args ++ "\n")
+	exitWith ExitSuccess	
 
-remove :: [String] -> IO ()
-remove [fileName, numberString] = do
-    handle <- openFile fileName ReadMode
-    (tempName, tempHandle) <- openTempFile "." "temp"
-    contents <- hGetContents handle
-    let number = read numberString
-        todoTasks = lines contents
-        newTodoItems = delete (todoTasks !! number) todoTasks
-    hPutStr tempHandle $ unlines newTodoItems
-    hClose handle
-    hClose tempHandle
-    removeFile fileName
-    renameFile tempName fileName
+--Remove an todo item
+remove args opt = do
+	handle <- openFile fileName ReadMode
+	(tempName, tempHandle) <- openTempFile "." "temp"
+	contents <- hGetContents handle
+	let number = read args :: Int
+            todoTasks = lines contents
+            newTodoItems = delete (todoTasks !! number) todoTasks
+	hPutStr tempHandle ( unlines newTodoItems )
+	hClose handle
+	hClose tempHandle
+	removeFile fileName
+	renameFile tempName fileName
+	exitWith ExitSuccess	
 
-search :: [String] -> IO ()
-search [fileName,keyword] = do
+--Search an todo item
+search args opt = do
 	contents <- readFile fileName
-	let todoTasks = filter (keyword `isInfixOf`) (lines contents)
-	putStr $ unlines todoTasks 
-
---not working yet
-replace :: [String] -> IO ()
-replace [fileName,numberString,newLine] = do
-	remove [fileName,numberString]
-	add [fileName,newLine]
+	let todoTasks = filter (args `isInfixOf`) (lines contents)
+	putStr ( unlines todoTasks )
+	exitWith ExitSuccess	
