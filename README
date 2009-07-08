@@ -1,6 +1,7 @@
 TodoList an todolist editor written in haskell
+Set the fileName in todo.hs
 Usage:
-	./todo view fileName
-	./todo add fileName "my todo thing"
-	./todo remove todo.txt number
-	./todo search todo.txt "keyword"
+	./todo view 
+	./todo add  "my todo thing"
+	./todo remove  number
+	./todo search  "keyword"
